@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Radar X GO</title>
+<title>Radar Conductor Bogotá</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -112,6 +112,14 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;borde
 <p id="tips"></p>
 <a id="wazeLink" href="https://www.waze.com/es/live-map/" target="_blank"><button>📍 Abrir en Waze</button></a>
 </div>
+
+<div class="card">
+<b>🧠 Asistente en vivo</b>
+<p class="small">Analiza tu GPS, hora real y zona actual para decirte si estás bien ubicado o si conviene moverte.</p>
+<button class="btnGreen" onclick="liveAssistant()">📡 Analizar mi ubicación ahora</button>
+<div id="liveAdvice" class="alert warn">Presiona el botón para recibir recomendación automática.</div>
+<a id="liveWazeLink" href="https://www.waze.com/es/live-map/" target="_blank"><button class="btnBlue">🧭 Abrir recomendación en Waze</button></a>
+</div>
 </section>
 
 <section id="mapa" class="section">
@@ -195,10 +203,8 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 
 const usuariosPermitidos = [
-  "djonah08@gmail.com",
-  "jonnyarevalooficial@gmail.com"
+  "djonah08@gmail.com"
 ];
-
 
 function showAuthMsg(text){
   const box=document.getElementById("authMsg");
@@ -291,6 +297,126 @@ const strategicZones={
 "Chapinero / Zona G":[4.6480,-74.0600],
 "Movistar Arena / Campín":[4.6486,-74.0777]
 };
+
+const liveZoneProfiles = [
+{name:"Chicó / Parque 93",lat:4.6767,lng:-74.0485,goals:["airport","executive","night"],peak:[4,5,6,7,8,16,17,18,19,20,21,22]},
+{name:"Zona T / Andino",lat:4.6692,lng:-74.0538,goals:["night","executive"],peak:[12,13,18,19,20,21,22,23,0,1]},
+{name:"Usaquén / Santa Bárbara",lat:4.6964,lng:-74.0303,goals:["airport","executive","efficient"],peak:[4,5,6,7,8,16,17,18,19]},
+{name:"Salitre / Modelia",lat:4.6640,lng:-74.1160,goals:["airport","efficient"],peak:[4,5,6,7,8,15,16,17,18,19]},
+{name:"Aeropuerto El Dorado",lat:4.7016,lng:-74.1469,goals:["airport"],peak:[5,6,7,8,11,12,17,18,19,20,21]},
+{name:"Connecta 26",lat:4.6787,lng:-74.1164,goals:["executive","airport","efficient"],peak:[7,8,9,12,13,16,17,18]},
+{name:"Chapinero / Zona G",lat:4.6480,lng:-74.0600,goals:["night","executive"],peak:[12,13,17,18,19,20,21,22]},
+{name:"Movistar Arena / Campín",lat:4.6486,lng:-74.0777,goals:["night"],peak:[18,19,20,21,22,23]}
+];
+
+function kmBetweenLive(lat1,lng1,lat2,lng2){
+const R=6371;
+const dLat=(lat2-lat1)*Math.PI/180;
+const dLng=(lng2-lng1)*Math.PI/180;
+const a=Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function currentAutoGoal(hour){
+if(hour>=4 && hour<=8)return "airport";
+if(hour>=9 && hour<=14)return "executive";
+if(hour>=15 && hour<=19)return "executive";
+if(hour>=20 || hour<=1)return "night";
+return "efficient";
+}
+
+function scoreLiveZone(zone,hour,goal,currentLat,currentLng){
+let score=50;
+if(zone.goals.includes(goal))score+=25;
+if(zone.peak.includes(hour))score+=20;
+const dist=kmBetweenLive(currentLat,currentLng,zone.lat,zone.lng);
+if(dist<2)score+=12;
+else if(dist<5)score+=7;
+else if(dist<9)score+=2;
+else score-=8;
+if(goal==="airport" && zone.name.includes("Salitre"))score+=10;
+if(goal==="airport" && zone.name.includes("Chicó"))score+=8;
+if(goal==="night" && zone.name.includes("Zona T"))score+=10;
+if(goal==="executive" && zone.name.includes("Connecta"))score+=8;
+return Math.max(10,Math.min(100,score));
+}
+
+function nearestLiveZone(lat,lng){
+return liveZoneProfiles
+.map(z=>({...z,distance:kmBetweenLive(lat,lng,z.lat,z.lng)}))
+.sort((a,b)=>a.distance-b.distance)[0];
+}
+
+window.liveAssistant=function(){
+const box=document.getElementById("liveAdvice");
+box.className="alert warn";
+box.innerHTML="📡 Leyendo GPS y analizando zona actual...";
+
+if(!navigator.geolocation){
+box.className="alert bad";
+box.innerHTML="❌ Este navegador no permite GPS.";
+return;
+}
+
+navigator.geolocation.getCurrentPosition(pos=>{
+const lat=pos.coords.latitude;
+const lng=pos.coords.longitude;
+const hour=new Date().getHours();
+const goal=currentAutoGoal(hour);
+const nearest=nearestLiveZone(lat,lng);
+
+const ranked=liveZoneProfiles
+.map(z=>({...z,score:scoreLiveZone(z,hour,goal,lat,lng),distance:kmBetweenLive(lat,lng,z.lat,z.lng)}))
+.sort((a,b)=>b.score-a.score);
+
+const best=ranked[0];
+const currentScore=scoreLiveZone(nearest,hour,goal,lat,lng);
+const diff=best.score-currentScore;
+
+let goalText={airport:"aeropuerto",executive:"ejecutivo/oficinas",night:"nocturno",efficient:"eficiencia"}[goal];
+
+let advice="";
+let className="alert good";
+
+if(diff<=8 || nearest.name===best.name){
+advice=`🔥 Estás bien ubicado.<br><br>
+<b>Zona actual:</b> ${nearest.name}<br>
+<b>Objetivo automático:</b> ${goalText}<br>
+<b>Score zona:</b> ${currentScore}%<br><br>
+Recomendación: quédate cerca, no te alejes todavía.`;
+className="alert good";
+}else if(best.distance<=8){
+advice=`⚠️ Conviene moverte.<br><br>
+<b>Zona actual:</b> ${nearest.name} (${nearest.distance.toFixed(1)} km aprox.)<br>
+<b>Mejor zona ahora:</b> ${best.name}<br>
+<b>Objetivo automático:</b> ${goalText}<br>
+<b>Score recomendado:</b> ${best.score}%<br><br>
+Recomendación: muévete hacia ${best.name} en los próximos 15–30 minutos.`;
+className="alert warn";
+}else{
+advice=`🚘 Tu zona actual no es la más fuerte, pero la mejor opción está algo lejos.<br><br>
+<b>Zona actual:</b> ${nearest.name}<br>
+<b>Mejor zona:</b> ${best.name} (${best.distance.toFixed(1)} km aprox.)<br>
+<b>Objetivo automático:</b> ${goalText}<br><br>
+Recomendación: solo muévete si el tráfico está manejable o si vas a encadenar con otro servicio.`;
+className="alert warn";
+}
+
+box.className=className;
+box.innerHTML=advice;
+
+const wazeUrl=`https://www.waze.com/es/live-map/directions?navigate=yes&to=ll.${best.lat}%2C${best.lng}`;
+document.getElementById("liveWazeLink").href=wazeUrl;
+
+if(marker){marker.setLatLng([lat,lng])}else{marker=L.marker([lat,lng]).addTo(map)}
+map.setView([lat,lng],14);
+
+},err=>{
+box.className="alert bad";
+box.innerHTML="❌ No se pudo leer tu GPS. Revisa permisos de ubicación en Chrome.";
+},{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
+}
+
 
 window.map=L.map('map').setView([4.67,-74.08],11);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
