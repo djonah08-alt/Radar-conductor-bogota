@@ -1,4 +1,4 @@
-const CACHE_NAME='radar-conductor-bogota-heatmap-v1';
+const CACHE_NAME='radar-conductor-bogota-unified-engine-v1';
 const ASSETS=['./','index.html','manifest.json'];
 self.addEventListener('install',event=>{
   self.skipWaiting();
