@@ -956,27 +956,48 @@ function detailedUnifiedMessage(current,best,goal,hour,hasGps){
   let currentLine=hasGps && current ? `<b>Zona actual estimada:</b> ${current.name}<br>` : "";
   let distLine=hasGps && best.distance!==null ? `<b>Distancia aprox. a recomendada:</b> ${best.distance.toFixed(1)} km<br>` : "";
 
-  let action="Quédate cerca y espera rotación.";
-  let level="🔥 Recomendación fuerte";
+  let level="🔥 Recomendación principal";
   let className="alert good";
+  let action="";
+  let locationTip="";
+  let currentScore=null;
+  let diff=null;
+  let sameZone=false;
 
   if(hasGps && current){
-    const currentScore=unifiedZoneScore(current,hour,goal,current.lat,current.lng);
-    const diff=best.score-currentScore;
+    currentScore=current.actualScore ?? unifiedZoneScore(current,hour,goal,current.lat,current.lng);
+    diff=best.score-currentScore;
+    sameZone=current.name===best.name;
 
-    if(current.name===best.name || diff<=7){
-      action="Estás bien ubicado para este objetivo. No te muevas todavía; espera 15–20 minutos y evita aceptar viajes que te saquen de zona sin buena tarifa.";
+    if(sameZone){
       level="✅ Estás bien ubicado";
       className="alert good";
-    }else if(best.distance<=7){
-      action=`Conviene reposicionarte hacia <b>${best.name}</b>. Hazlo preferiblemente sin entrar a trancones pesados y usando corredores principales.`;
-      level="⚠️ Mejor reposicionarte";
+      action=`Tu zona actual coincide con la zona recomendada para el objetivo <b>${goalTxt}</b>. Quédate cerca y espera rotación entre 15 y 20 minutos.`;
+      locationTip=current.moveTip;
+    }else if(currentScore>=78 && diff<=6){
+      level="✅ Zona actual aceptable";
+      className="alert good";
+      action=`Tu zona actual también sirve para el objetivo <b>${goalTxt}</b>, aunque la zona con mejor score ahora es <b>${best.name}</b>. No te muevas de inmediato. Espera 15–20 minutos; si no cae servicio, considera moverte hacia la recomendada.`;
+      locationTip=`Mientras sigas en <b>${current.name}</b>: ${current.moveTip}<br><br>Si decides reposicionarte hacia <b>${best.name}</b>: ${best.moveTip}`;
+    }else if(best.distance<=8){
+      level="⚠️ Conviene reposicionarte";
       className="alert warn";
+      action=`Para el objetivo <b>${goalTxt}</b>, tu zona actual no es la mejor opción en este momento. Conviene moverte hacia <b>${best.name}</b> en los próximos 15–30 minutos, evitando entrar a tramos de tráfico pesado.`;
+      locationTip=`Salida desde <b>${current.name}</b>: busca una vía principal para no quedar atrapado.<br><br>Al llegar a <b>${best.name}</b>: ${best.moveTip}`;
     }else{
-      action=`La mejor zona es <b>${best.name}</b>, pero está algo lejos. Solo muévete si el tráfico está manejable o si puedes encadenar un servicio hacia allá.`;
       level="🚘 Recomendación con cautela";
       className="alert warn";
+      action=`La mejor zona para <b>${goalTxt}</b> es <b>${best.name}</b>, pero está relativamente lejos. Solo muévete si el tráfico está manejable o si puedes encadenar un servicio hacia esa zona.`;
+      locationTip=`Por ahora, si decides quedarte en <b>${current.name}</b>: ${current.moveTip}<br><br>Si decides ir a <b>${best.name}</b>: ${best.moveTip}`;
     }
+  }else{
+    action=`La mejor zona para el objetivo <b>${goalTxt}</b> es <b>${best.name}</b>.`;
+    locationTip=best.moveTip;
+  }
+
+  let comparison = "";
+  if(hasGps && current && !sameZone){
+    comparison = `<br><b>Score zona actual:</b> ${currentScore}%<br><b>Diferencia frente a recomendada:</b> ${diff}%<br>`;
   }
 
   return {
@@ -986,12 +1007,13 @@ function detailedUnifiedMessage(current,best,goal,hour,hasGps){
     <b>Hora real:</b> ${String(hour).padStart(2,"0")}:00<br>
     ${currentLine}
     <b>Zona recomendada:</b> ${best.name}<br>
-    <b>Macro zona:</b> ${best.macro}<br>
-    <b>Score:</b> ${best.score}%<br>
+    <b>Macro zona recomendada:</b> ${best.macro}<br>
+    <b>Score recomendado:</b> ${best.score}%<br>
+    ${comparison}
     ${distLine}
-    <br><b>Por qué:</b> ${best.detail}<br><br>
+    <br><b>Lectura:</b> ${best.detail}<br><br>
     <b>Acción concreta:</b> ${action}<br><br>
-    <b>Cómo ubicarte:</b> ${best.moveTip}`
+    <b>Cómo ubicarte:</b> ${locationTip}`
   };
 }
 
@@ -1036,6 +1058,9 @@ window.liveAssistant=function(){
     const hour=new Date().getHours();
     const goal=activeGoalUnified();
     const current=nearestUnifiedZone(lat,lng);
+    current.actualDriverLat = lat;
+    current.actualDriverLng = lng;
+    current.actualScore = unifiedZoneScore(current,hour,goal,lat,lng);
     const ranked=bestUnifiedZones(goal,hour,lat,lng);
     const best=ranked[0];
     const msg=detailedUnifiedMessage(current,best,goal,hour,true);
