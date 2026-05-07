@@ -5,328 +5,66 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Radar Conductor Bogotá Android</title>
+<title>Radar Conductor Bogotá</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-:root{
---bg:#07111f;--card:#111827;--soft:#1e293b;--gold:#facc15;--green:#22c55e;--red:#ef4444;--blue:#38bdf8;--muted:#94a3b8;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#fff}
+:root{--bg:#07111f;--card:#111827;--soft:#1e293b;--gold:#facc15;--green:#22c55e;--red:#ef4444;--blue:#38bdf8;--muted:#94a3b8}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#fff}
 header{position:sticky;top:0;z-index:50;padding:14px 16px;background:linear-gradient(135deg,#0f172a,#1e293b);box-shadow:0 8px 24px rgba(0,0,0,.28)}
-h1{margin:0;font-size:22px}
-.subtitle{font-size:13px;color:#cbd5e1;margin-top:4px}
-.container{padding:14px;max-width:980px;margin:auto;padding-bottom:86px}
+h1{margin:0;font-size:22px}.subtitle{font-size:13px;color:#cbd5e1;margin-top:4px}.container{padding:14px;max-width:980px;margin:auto;padding-bottom:86px}
 .card{background:var(--card);border-radius:18px;padding:15px;margin-bottom:14px;border:1px solid rgba(255,255,255,.08)}
-select,button,input,textarea{width:100%;padding:14px;border-radius:13px;border:0;margin-top:10px;background:var(--soft);color:#fff;font-size:16px}
-button{background:var(--gold);color:#111827;font-weight:900}
+select,button,input,textarea{width:100%;padding:14px;border-radius:13px;border:0;margin-top:10px;background:var(--soft);color:#fff;font-size:16px}button{background:var(--gold);color:#111827;font-weight:900}
 .btnGreen{background:var(--green);color:#052e16}.btnRed{background:var(--red);color:white}.btnBlue{background:var(--blue);color:#082f49}.btnDark{background:#334155;color:white}
-.bottomNav{position:fixed;bottom:0;left:0;right:0;background:#020617;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:repeat(4,1fr);z-index:60}
-.bottomNav button{border-radius:0;margin:0;padding:10px 4px;background:#020617;color:#e2e8f0;font-size:12px}
-.bottomNav button.active{background:#172554;color:#facc15}
-.section{display:none}.section.active{display:block}
-#map{height:420px;border-radius:16px;overflow:hidden}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:#0f172a;padding:12px;border-radius:14px}
-.big{font-size:27px;font-weight:900;color:var(--gold)}
-.score{font-size:54px;font-weight:950;color:var(--gold);line-height:1}
-.zone{font-size:21px;font-weight:850;color:var(--gold);margin-top:8px}
-.small{font-size:13px;color:var(--muted)}
-.alert{padding:12px;border-radius:12px;margin-top:10px;font-weight:650}
-.good{background:#14532d}.warn{background:#78350f}.bad{background:#7f1d1d}
-.pill{display:inline-block;background:#0f172a;padding:8px 12px;border-radius:999px;margin:4px}
-table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
-.installBox{background:linear-gradient(135deg,#172554,#0f172a);border:1px solid rgba(250,204,21,.35)}
-.statusDot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px}
-.statusDot.on{background:#22c55e}
+.bottomNav{position:fixed;bottom:0;left:0;right:0;background:#020617;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:repeat(4,1fr);z-index:60}.bottomNav button{border-radius:0;margin:0;padding:10px 4px;background:#020617;color:#e2e8f0;font-size:12px}.bottomNav button.active{background:#172554;color:#facc15}
+.section{display:none}.section.active{display:block}#map{height:420px;border-radius:16px;overflow:hidden}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#0f172a;padding:12px;border-radius:14px}.big{font-size:27px;font-weight:900;color:var(--gold)}.score{font-size:54px;font-weight:950;color:var(--gold);line-height:1}.zone{font-size:21px;font-weight:850;color:var(--gold);margin-top:8px}.small{font-size:13px;color:var(--muted)}.alert{padding:12px;border-radius:12px;margin-top:10px;font-weight:650}.good{background:#14532d}.warn{background:#78350f}.bad{background:#7f1d1d}.pill{display:inline-block;background:#0f172a;padding:8px 12px;border-radius:999px;margin:4px}table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}.installBox{background:linear-gradient(135deg,#172554,#0f172a);border:1px solid rgba(250,204,21,.35)}.statusDot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px}.statusDot.on{background:#22c55e}
+.authScreen{position:fixed;inset:0;background:linear-gradient(160deg,#020617,#0f172a);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}.authBox{width:100%;max-width:430px;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.5)}.authTitle{font-size:28px;font-weight:950;margin-bottom:6px}.locked{display:none}.userBar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;background:#0f172a;padding:10px;border-radius:14px}.userEmail{font-size:12px;color:#cbd5e1;overflow:hidden;text-overflow:ellipsis}.payBox{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#020617,#0f172a);z-index:9998;padding:18px;overflow:auto}.payCard{max-width:520px;margin:30px auto;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:20px}
 @media(max-width:620px){.grid{grid-template-columns:1fr}#map{height:360px}.score{font-size:48px}}
 </style>
 </head>
 <body>
-<header>
-<h1>🚘 Radar Conductor Bogotá</h1>
-<div class="subtitle">Android · GPS · zonas · Waze · jornada · rentabilidad</div>
-</header>
-
-<div class="container">
-
-<section id="radar" class="section active">
-<div class="card installBox" id="installCard">
-<b>📲 Instalar en Android</b>
-<p class="small">En Chrome puedes instalarla como app. Si aparece el botón, tócalo. También puedes usar: menú ⋮ → Agregar a pantalla principal.</p>
-<button id="installBtn" onclick="installApp()">Instalar app</button>
-</div>
-
-<div class="card">
-<b>🎯 Recomendador de zonas</b>
-<select id="day">
-<option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
-</select>
-<select id="hour"></select>
-<select id="goal">
-<option value="airport">Aeropuerto</option>
-<option value="executive">Ejecutivo / oficinas</option>
-<option value="night">Nocturno / rumba</option>
-<option value="efficient">Eficiencia / menos desgaste</option>
-</select>
-<select id="traffic">
-<option value="medio">Tráfico medio</option>
-<option value="bajo">Tráfico bajo</option>
-<option value="alto">Tráfico alto</option>
-</select>
-<button onclick="analyze()">Analizar zona</button>
-</div>
-
-<div class="card">
-<div class="small">Resultado actual</div>
-<div class="score" id="score">--</div>
-<div class="zone" id="zone">Selecciona tus datos</div>
-<div id="peak"></div>
-<div id="alertBox"></div>
-<p id="tips"></p>
-<a id="wazeLink" href="https://www.waze.com/es/live-map/" target="_blank"><button>📍 Abrir en Waze</button></a>
-</div>
-</section>
-
-<section id="mapa" class="section">
-<div class="card">
-<b>🗺 Mapa y recorrido</b>
-<div id="map"></div>
-<div class="small" style="margin-top:10px">Mapa base OpenStreetMap. Waze se abre como app externa si está instalada en Android.</div>
-</div>
-</section>
-
-<section id="tracker" class="section">
-<div class="card">
-<b>📍 Control de jornada GPS</b>
-<div class="alert" id="status"><span class="statusDot" id="dot"></span>Estado: sin jornada activa</div>
-<div class="grid">
-<button class="btnGreen" onclick="startShift()">▶️ Iniciar trabajo</button>
-<button class="btnRed" onclick="stopShift()">⏹ Finalizar trabajo</button>
-</div>
-<button class="btnDark" onclick="centerGPS()">🎯 Centrar mi ubicación</button>
-</div>
-
-<div class="card">
-<b>Resumen de jornada</b>
-<div class="grid">
-<div class="stat"><div class="small">Tiempo</div><div class="big" id="timeStat">0 min</div></div>
-<div class="stat"><div class="small">Distancia aprox.</div><div class="big" id="distStat">0 km</div></div>
-<div class="stat"><div class="small">Puntos GPS</div><div class="big" id="pointsStat">0</div></div>
-<div class="stat"><div class="small">Zona dominante</div><div class="big" id="zoneStat">--</div></div>
-</div>
-</div>
-
-<div class="card">
-<b>💰 Datos económicos del turno</b>
-<input id="income" type="number" inputmode="numeric" placeholder="Ganancia bruta del turno">
-<input id="fuel" type="number" inputmode="numeric" placeholder="Gasto gasolina / energía">
-<input id="tolls" type="number" inputmode="numeric" placeholder="Peajes / parqueaderos / otros">
-<textarea id="notes" placeholder="Notas: zonas buenas, aeropuerto, eventos, servicios malos, etc."></textarea>
-<button onclick="saveProfitData()">💾 Guardar rentabilidad</button>
-</div>
-</section>
-
-<section id="historial" class="section">
-<div class="card">
-<b>📊 Historial de jornadas</b>
-<div id="history"></div>
-<button class="btnBlue" onclick="exportCSV()">📤 Exportar CSV</button>
-<button class="btnRed" onclick="clearHistory()">🗑 Borrar historial</button>
-</div>
-</section>
-
-</div>
-
-<nav class="bottomNav">
-<button id="nav-radar" class="active" onclick="showTab('radar')">🎯<br>Radar</button>
-<button id="nav-mapa" onclick="showTab('mapa')">🗺<br>Mapa</button>
-<button id="nav-tracker" onclick="showTab('tracker')">📍<br>Jornada</button>
-<button id="nav-historial" onclick="showTab('historial')">📊<br>Historial</button>
-</nav>
-
+<div id="authScreen" class="authScreen"><div class="authBox"><div class="authTitle">🚘 Radar Conductor</div><p class="small">Acceso privado para conductores registrados.</p><input id="authEmail" type="email" placeholder="Correo electrónico"><input id="authPassword" type="password" placeholder="Contraseña"><button onclick="loginUser()">Iniciar sesión</button><button class="btnDark" onclick="registerUser()">Crear cuenta</button><button class="btnBlue" onclick="resetPassword()">Recuperar contraseña</button><div id="authMsg" class="alert warn" style="display:none"></div><p class="small">La suscripción se activa manualmente desde Firebase mientras conectamos pagos automáticos.</p></div></div>
+<div id="payScreen" class="payBox"><div class="payCard"><h2>🔒 Suscripción requerida</h2><p>Tu cuenta existe, pero aún no tiene una suscripción activa.</p><div class="alert warn">Plan recomendado: <b>Radar Conductor Pro</b><br>Valor sugerido: <b>$9.900 COP mensual</b></div><p class="small">Por ahora la activación es manual. En Firebase cambia el usuario a <b>subscriptionStatus: active</b>.</p><button onclick="logoutUser()">Cerrar sesión</button></div></div>
+<header id="mainHeader" class="locked"><h1>🚘 Radar Conductor Bogotá</h1><div class="subtitle">Android · GPS · zonas · Waze · jornada · rentabilidad</div><div class="userBar"><span class="userEmail" id="currentUserEmail">Usuario</span><button class="btnRed" style="width:auto;padding:8px 12px;margin:0" onclick="logoutUser()">Salir</button></div></header>
+<div id="appContent" class="container locked">
+<section id="radar" class="section active"><div class="card installBox"><b>📲 Instalar en Android</b><p class="small">En Chrome: menú ⋮ → Agregar a pantalla principal.</p><button onclick="installApp()">Instalar app</button></div><div class="card"><b>🎯 Recomendador de zonas</b><select id="day"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option></select><select id="hour"></select><select id="goal"><option value="airport">Aeropuerto</option><option value="executive">Ejecutivo / oficinas</option><option value="night">Nocturno / rumba</option><option value="efficient">Eficiencia / menos desgaste</option></select><select id="traffic"><option value="medio">Tráfico medio</option><option value="bajo">Tráfico bajo</option><option value="alto">Tráfico alto</option></select><button onclick="analyze()">Analizar zona</button></div><div class="card"><div class="small">Resultado actual</div><div class="score" id="score">--</div><div class="zone" id="zone">Selecciona tus datos</div><div id="peak"></div><div id="alertBox"></div><p id="tips"></p><a id="wazeLink" href="https://www.waze.com/es/live-map/" target="_blank"><button>📍 Abrir en Waze</button></a></div></section>
+<section id="mapa" class="section"><div class="card"><b>🗺 Mapa y recorrido</b><div id="map"></div><div class="small" style="margin-top:10px">Mapa base OpenStreetMap. Waze se abre como app externa si está instalada en Android.</div></div></section>
+<section id="tracker" class="section"><div class="card"><b>📍 Control de jornada GPS</b><div class="alert" id="status"><span class="statusDot"></span>Estado: sin jornada activa</div><div class="grid"><button class="btnGreen" onclick="startShift()">▶️ Iniciar trabajo</button><button class="btnRed" onclick="stopShift()">⏹ Finalizar trabajo</button></div><button class="btnDark" onclick="centerGPS()">🎯 Centrar mi ubicación</button></div><div class="card"><b>Resumen de jornada</b><div class="grid"><div class="stat"><div class="small">Tiempo</div><div class="big" id="timeStat">0 min</div></div><div class="stat"><div class="small">Distancia aprox.</div><div class="big" id="distStat">0 km</div></div><div class="stat"><div class="small">Puntos GPS</div><div class="big" id="pointsStat">0</div></div><div class="stat"><div class="small">Zona dominante</div><div class="big" id="zoneStat">--</div></div></div></div><div class="card"><b>💰 Datos económicos del turno</b><input id="income" type="number" inputmode="numeric" placeholder="Ganancia bruta del turno"><input id="fuel" type="number" inputmode="numeric" placeholder="Gasto gasolina / energía"><input id="tolls" type="number" inputmode="numeric" placeholder="Peajes / parqueaderos / otros"><textarea id="notes" placeholder="Notas: zonas buenas, aeropuerto, eventos, servicios malos, etc."></textarea><button onclick="saveProfitData()">💾 Guardar rentabilidad</button></div></section>
+<section id="historial" class="section"><div class="card"><b>📊 Historial de jornadas</b><div id="history"></div><button class="btnBlue" onclick="exportCSV()">📤 Exportar CSV</button><button class="btnRed" onclick="clearHistory()">🗑 Borrar historial</button></div></section></div>
+<nav id="bottomNav" class="bottomNav locked"><button id="nav-radar" class="active" onclick="showTab('radar')">🎯<br>Radar</button><button id="nav-mapa" onclick="showTab('mapa')">🗺<br>Mapa</button><button id="nav-tracker" onclick="showTab('tracker')">📍<br>Jornada</button><button id="nav-historial" onclick="showTab('historial')">📊<br>Historial</button></nav>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyDaQgkjo41WkNoXLdhXoSX48bmSyL29HVY",authDomain:"radar-conductor-bogota.firebaseapp.com",projectId:"radar-conductor-bogota",storageBucket:"radar-conductor-bogota.firebasestorage.app",messagingSenderId:"865533493546",appId:"1:865533493546:web:76145dd1f681826608de53"};
+const firebaseApp=initializeApp(firebaseConfig); const auth=getAuth(firebaseApp); const db=getFirestore(firebaseApp);
+function showAuthMsg(t){const b=document.getElementById("authMsg");b.style.display="block";b.textContent=t}
+window.registerUser=async function(){const email=document.getElementById("authEmail").value.trim();const password=document.getElementById("authPassword").value.trim();if(!email||password.length<6){showAuthMsg("Correo y contraseña mínima de 6 caracteres.");return}try{const cred=await createUserWithEmailAndPassword(auth,email,password);await setDoc(doc(db,"users",cred.user.uid),{email,subscriptionStatus:"pending",plan:"none",createdAt:serverTimestamp()});showAuthMsg("Cuenta creada. Falta activar suscripción.")}catch(e){showAuthMsg("Error: "+e.message)}}
+window.loginUser=async function(){const email=document.getElementById("authEmail").value.trim();const password=document.getElementById("authPassword").value.trim();try{await signInWithEmailAndPassword(auth,email,password)}catch(e){showAuthMsg("No se pudo iniciar sesión: "+e.message)}}
+window.logoutUser=async function(){await signOut(auth)}
+window.resetPassword=async function(){const email=document.getElementById("authEmail").value.trim();if(!email){showAuthMsg("Escribe tu correo.");return}try{await sendPasswordResetEmail(auth,email);showAuthMsg("Correo de recuperación enviado.")}catch(e){showAuthMsg("Error: "+e.message)}}
+async function checkSubscription(user){document.getElementById("currentUserEmail").textContent=user.email;try{const ref=doc(db,"users",user.uid);const snap=await getDoc(ref);if(!snap.exists()){await setDoc(ref,{email:user.email,subscriptionStatus:"pending",plan:"none",createdAt:serverTimestamp()});showPay();return}const data=snap.data();if(data.subscriptionStatus==="active"){showApp()}else{showPay()}}catch(e){showAuthMsg("Crea Firestore Database para validar suscripción.");showPay()}}
+function showApp(){document.getElementById("authScreen").style.display="none";document.getElementById("payScreen").style.display="none";document.querySelectorAll(".locked").forEach(el=>el.style.display=el.tagName==="NAV"?"grid":"block");setTimeout(()=>{if(window.map)map.invalidateSize()},500)}
+function showPay(){document.getElementById("authScreen").style.display="none";document.getElementById("payScreen").style.display="block";document.querySelectorAll(".locked").forEach(el=>el.style.display="none")}
+onAuthStateChanged(auth,(user)=>{if(user){checkSubscription(user)}else{document.getElementById("authScreen").style.display="flex";document.getElementById("payScreen").style.display="none";document.querySelectorAll(".locked").forEach(el=>el.style.display="none")}});
+</script>
 <script>
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById('installCard').style.display='block'});
-async function installApp(){if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else{alert('En Chrome: menú ⋮ → Agregar a pantalla principal.')}}
-
-function showTab(id){
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.remove('active'));
-document.getElementById('nav-'+id).classList.add('active');
-setTimeout(()=>{if(window.map) map.invalidateSize()},300);
-}
-
-const hourSelect=document.getElementById("hour");
-for(let i=0;i<24;i++){let o=document.createElement("option");o.value=i;o.textContent=(i<10?"0":"")+i+":00";hourSelect.appendChild(o)}
-hourSelect.value=new Date().getHours();
-const days=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-document.getElementById("day").value=days[new Date().getDay()];
-
-const strategicZones={
-"Chicó / Parque 93":[4.6767,-74.0485],
-"Zona T / Andino":[4.6692,-74.0538],
-"Usaquén / Santa Bárbara":[4.6964,-74.0303],
-"Salitre / Modelia":[4.6640,-74.1160],
-"Aeropuerto El Dorado":[4.7016,-74.1469],
-"Connecta 26":[4.6787,-74.1164],
-"Chapinero / Zona G":[4.6480,-74.0600],
-"Movistar Arena / Campín":[4.6486,-74.0777]
-};
-
-window.map=L.map('map').setView([4.67,-74.08],11);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-let routeLine=L.polyline([], {color:'yellow'}).addTo(map);
-let marker=null,lastPosition=null;
-
-Object.entries(strategicZones).forEach(([name,coords])=>{
-L.circleMarker(coords,{radius:12,color:"#22c55e",fillOpacity:.8}).addTo(map).bindPopup(name);
-});
-
-function analyze(){
-const goal=document.getElementById("goal").value;
-const hour=parseInt(document.getElementById("hour").value);
-const traffic=document.getElementById("traffic").value;
-let zone="",score=75,tips="",waze="https://www.waze.com/es/live-map/",peak="";
-
-if(goal==="airport"){zone="Chicó / Parque 93 → Salitre / Modelia → Aeropuerto";score=88;tips="Recoge hacia El Dorado. Posiciónate 30–40 minutos antes. Si dejas en aeropuerto y no cae rápido, sal a Modelia, Salitre o Connecta.";waze="https://www.waze.com/es/live-map/directions/el-dorado-international-airport-bogota";}
-if(goal==="executive"){zone="Parque 93 · Calle 100 · Connecta · Salitre";score=82;tips="Oficinas, hoteles y reuniones. Mejores franjas: 7–9 a.m. y 4–7 p.m.";}
-if(goal==="night"){zone="Zona T · Parque 93 · Chapinero · Zona G";score=91;tips="Restaurantes, bares, rumba y eventos. Jueves, viernes y sábado después de 8 p.m. suelen ser más fuertes.";}
-if(goal==="efficient"){zone="Modelia · Salitre · Connecta · Calle 26";score=79;tips="Menos desgaste, mejor retorno y menos extremos de ciudad en hora pico.";}
-
-if(traffic==="alto")score-=10;if(traffic==="bajo")score+=5;
-if(hour>=4&&hour<=7){peak='<div class="alert good">🔥 Hora premium aeropuerto activa. Ya deberías estar en zona.</div>'}
-else if(hour>=16&&hour<=19){peak='<div class="alert warn">⚠️ Pico tarde. Posiciónate antes de que el trancón se cierre.</div>'}
-else if(hour>=20||hour<=1){peak='<div class="alert good">🌙 Franja nocturna útil para Zona T, 93, Chapinero y eventos.</div>'}
-else{peak='<div class="alert warn">🚘 Hora de posicionamiento. Muévete 20–40 minutos antes del siguiente pico.</div>'}
-document.getElementById("score").innerHTML=Math.max(30,Math.min(98,score))+"%";
-document.getElementById("zone").innerHTML=zone;
-document.getElementById("tips").innerHTML=tips;
-document.getElementById("peak").innerHTML=peak;
-document.getElementById("alertBox").innerHTML='<div class="alert good">Recomendación estratégica basada en hora, zona y objetivo.</div>';
-document.getElementById("wazeLink").href=waze;
-}
-analyze();
-
-let watchId=null,currentShift=null;
-const gpsZones=[
-{name:"Aeropuerto / Fontibón",lat:4.7016,lng:-74.1469},
-{name:"Salitre / Modelia",lat:4.6640,lng:-74.1160},
-{name:"Chicó / Parque 93",lat:4.6767,lng:-74.0485},
-{name:"Zona T / Andino",lat:4.6692,lng:-74.0538},
-{name:"Usaquén / Santa Bárbara",lat:4.6964,lng:-74.0303},
-{name:"Chapinero / Zona G",lat:4.6480,lng:-74.0600},
-{name:"Centro / Teusaquillo",lat:4.6210,lng:-74.0730}
-];
-function loadHistory(){return JSON.parse(localStorage.getItem("radarAndroidHistory")||"[]")}
-function saveHistory(h){localStorage.setItem("radarAndroidHistory",JSON.stringify(h))}
-function distanceKm(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,lat1=a.lat*Math.PI/180,lat2=b.lat*Math.PI/180,x=Math.sin(dLat/2)**2+Math.sin(dLng/2)**2*Math.cos(lat1)*Math.cos(lat2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-function nearestZone(lat,lng){let best=gpsZones[0],min=999;gpsZones.forEach(z=>{let d=distanceKm({lat,lng},{lat:z.lat,lng:z.lng});if(d<min){min=d;best=z}});return best.name}
-function dominantZone(points){let count={};points.forEach(p=>{let z=nearestZone(p.lat,p.lng);count[z]=(count[z]||0)+1});let sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]);return sorted[0]?.[0]||"--"}
-function totalDistance(points){let d=0;for(let i=1;i<points.length;i++)d+=distanceKm(points[i-1],points[i]);return d}
-
-function startShift(){
-if(currentShift){alert("Ya hay una jornada activa");return}
-currentShift={id:Date.now(),start:new Date().toISOString(),end:null,points:[],income:0,fuel:0,tolls:0,notes:""};
-routeLine.setLatLngs([]);
-document.getElementById("status").innerHTML='<span class="statusDot on"></span>Estado: jornada activa, registrando GPS...';
-showTab('mapa');
-if(!navigator.geolocation){alert("Tu navegador no permite GPS");return}
-watchId=navigator.geolocation.watchPosition(pos=>{
-let p={lat:pos.coords.latitude,lng:pos.coords.longitude,time:new Date().toISOString(),speed:pos.coords.speed||0,accuracy:pos.coords.accuracy||0};
-lastPosition=p;
-currentShift.points.push(p);
-routeLine.addLatLng([p.lat,p.lng]);
-if(marker){marker.setLatLng([p.lat,p.lng])}else{marker=L.marker([p.lat,p.lng]).addTo(map)}
-map.setView([p.lat,p.lng],15);
-updateStats();
-},err=>{alert("No se pudo leer GPS. Activa ubicación en Chrome y permisos del sitio.");},{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
-}
-
-function stopShift(){
-if(!currentShift){alert("No hay jornada activa");return}
-if(watchId!==null)navigator.geolocation.clearWatch(watchId);
-watchId=null;
-currentShift.end=new Date().toISOString();
-let h=loadHistory();h.push(currentShift);saveHistory(h);
-currentShift=null;
-document.getElementById("status").innerHTML='<span class="statusDot"></span>Estado: jornada finalizada. Agrega ganancias y gastos.';
-renderHistory();updateStats();showTab('tracker');
-}
-
-function centerGPS(){
-if(lastPosition){map.setView([lastPosition.lat,lastPosition.lng],16);showTab('mapa');return}
-navigator.geolocation.getCurrentPosition(pos=>{
-lastPosition={lat:pos.coords.latitude,lng:pos.coords.longitude,time:new Date().toISOString()};
-if(marker){marker.setLatLng([lastPosition.lat,lastPosition.lng])}else{marker=L.marker([lastPosition.lat,lastPosition.lng]).addTo(map)}
-map.setView([lastPosition.lat,lastPosition.lng],16);showTab('mapa');
-},()=>alert("No se pudo centrar. Revisa permisos de ubicación."));
-}
-
-function saveProfitData(){
-let h=loadHistory();
-if(h.length===0){alert("Primero finaliza una jornada");return}
-let last=h[h.length-1];
-last.income=Number(document.getElementById("income").value||0);
-last.fuel=Number(document.getElementById("fuel").value||0);
-last.tolls=Number(document.getElementById("tolls").value||0);
-last.notes=document.getElementById("notes").value||"";
-saveHistory(h);renderHistory();alert("Datos económicos guardados");
-}
-
-function updateStats(){
-let s=currentShift || loadHistory().slice(-1)[0]; if(!s)return;
-let points=s.points||[];
-let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):Math.round((new Date()-new Date(s.start))/60000);
-document.getElementById("timeStat").innerHTML=mins+" min";
-document.getElementById("distStat").innerHTML=totalDistance(points).toFixed(1)+" km";
-document.getElementById("pointsStat").innerHTML=points.length;
-document.getElementById("zoneStat").innerHTML=dominantZone(points);
-}
-setInterval(updateStats,30000);
-
-function renderHistory(){
-let h=loadHistory();
-if(h.length===0){document.getElementById("history").innerHTML="<p class='small'>Aún no hay jornadas guardadas.</p>";return}
-let rows=h.slice().reverse().map(s=>{
-let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):0;
-let km=totalDistance(s.points||[]).toFixed(1);
-let net=Number(s.income||0)-Number(s.fuel||0)-Number(s.tolls||0);
-let zone=dominantZone(s.points||[]);
-let date=new Date(s.start).toLocaleString();
-return `<tr><td>${date}</td><td>${mins} min</td><td>${km} km</td><td>${zone}</td><td>$${net.toLocaleString()}</td></tr>`;
-}).join("");
-document.getElementById("history").innerHTML=`<table><tr><th>Fecha</th><th>Tiempo</th><th>Km</th><th>Zona</th><th>Neto</th></tr>${rows}</table>`;
-}
-
-function exportCSV(){
-let h=loadHistory();
-let csv="fecha_inicio,fecha_fin,minutos,km,zona_dominante,ganancia_bruta,gastos_combustible,otros_gastos,ganancia_neta,notas,puntos_gps\n";
-h.forEach(s=>{
-let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):0;
-let km=totalDistance(s.points||[]).toFixed(2);
-let zone=dominantZone(s.points||[]);
-let net=Number(s.income||0)-Number(s.fuel||0)-Number(s.tolls||0);
-let pts=(s.points||[]).map(p=>`${p.lat}|${p.lng}|${p.time}`).join(";");
-let row=[s.start,s.end||"",mins,km,zone,s.income||0,s.fuel||0,s.tolls||0,net,(s.notes||"").replaceAll(","," "),pts].join(",");
-csv+=row+"\n";
-});
-let blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-let url=URL.createObjectURL(blob);let a=document.createElement("a");
-a.href=url;a.download="historial_radar_conductor_bogota_android.csv";a.click();URL.revokeObjectURL(url);
-}
-
-function clearHistory(){
-if(confirm("¿Seguro que deseas borrar todo el historial?")){
-localStorage.removeItem("radarAndroidHistory");renderHistory();
-}
-}
-
-if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}
-renderHistory();
+let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e});async function installApp(){if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else{alert('En Chrome: menú ⋮ → Agregar a pantalla principal.')}}
+function showTab(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.remove('active'));document.getElementById('nav-'+id).classList.add('active');setTimeout(()=>{if(window.map)map.invalidateSize()},300)}
+const hourSelect=document.getElementById("hour");for(let i=0;i<24;i++){let o=document.createElement("option");o.value=i;o.textContent=(i<10?"0":"")+i+":00";hourSelect.appendChild(o)}hourSelect.value=new Date().getHours();const days=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];document.getElementById("day").value=days[new Date().getDay()];
+const strategicZones={"Chicó / Parque 93":[4.6767,-74.0485],"Zona T / Andino":[4.6692,-74.0538],"Usaquén / Santa Bárbara":[4.6964,-74.0303],"Salitre / Modelia":[4.6640,-74.1160],"Aeropuerto El Dorado":[4.7016,-74.1469],"Connecta 26":[4.6787,-74.1164],"Chapinero / Zona G":[4.6480,-74.0600],"Movistar Arena / Campín":[4.6486,-74.0777]};
+window.map=L.map('map').setView([4.67,-74.08],11);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);let routeLine=L.polyline([],{color:'yellow'}).addTo(map);let marker=null,lastPosition=null;Object.entries(strategicZones).forEach(([name,coords])=>{L.circleMarker(coords,{radius:12,color:"#22c55e",fillOpacity:.8}).addTo(map).bindPopup(name)});
+function analyze(){const goal=document.getElementById("goal").value;const hour=parseInt(document.getElementById("hour").value);const traffic=document.getElementById("traffic").value;let zone="",score=75,tips="",waze="https://www.waze.com/es/live-map/",peak="";if(goal==="airport"){zone="Chicó / Parque 93 → Salitre / Modelia → Aeropuerto";score=88;tips="Recoge hacia El Dorado. Posiciónate 30–40 minutos antes.";waze="https://www.waze.com/es/live-map/directions/el-dorado-international-airport-bogota"}if(goal==="executive"){zone="Parque 93 · Calle 100 · Connecta · Salitre";score=82;tips="Oficinas, hoteles y reuniones. Mejores franjas: 7–9 a.m. y 4–7 p.m."}if(goal==="night"){zone="Zona T · Parque 93 · Chapinero · Zona G";score=91;tips="Jueves, viernes y sábado después de 8 p.m. suelen ser más fuertes."}if(goal==="efficient"){zone="Modelia · Salitre · Connecta · Calle 26";score=79;tips="Menos desgaste, mejor retorno y menos extremos."}if(traffic==="alto")score-=10;if(traffic==="bajo")score+=5;if(hour>=4&&hour<=7){peak='<div class="alert good">🔥 Hora premium aeropuerto activa.</div>'}else if(hour>=16&&hour<=19){peak='<div class="alert warn">⚠️ Pico tarde. Posiciónate antes.</div>'}else if(hour>=20||hour<=1){peak='<div class="alert good">🌙 Franja nocturna útil.</div>'}else{peak='<div class="alert warn">🚘 Hora de posicionamiento.</div>'}document.getElementById("score").innerHTML=Math.max(30,Math.min(98,score))+"%";document.getElementById("zone").innerHTML=zone;document.getElementById("tips").innerHTML=tips;document.getElementById("peak").innerHTML=peak;document.getElementById("alertBox").innerHTML='<div class="alert good">Recomendación estratégica basada en hora, zona y objetivo.</div>';document.getElementById("wazeLink").href=waze}analyze();
+let watchId=null,currentShift=null;const gpsZones=[{name:"Aeropuerto / Fontibón",lat:4.7016,lng:-74.1469},{name:"Salitre / Modelia",lat:4.6640,lng:-74.1160},{name:"Chicó / Parque 93",lat:4.6767,lng:-74.0485},{name:"Zona T / Andino",lat:4.6692,lng:-74.0538},{name:"Usaquén / Santa Bárbara",lat:4.6964,lng:-74.0303},{name:"Chapinero / Zona G",lat:4.6480,lng:-74.0600},{name:"Centro / Teusaquillo",lat:4.6210,lng:-74.0730}];function loadHistory(){return JSON.parse(localStorage.getItem("radarAndroidHistory")||"[]")}function saveHistory(h){localStorage.setItem("radarAndroidHistory",JSON.stringify(h))}function distanceKm(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,lat1=a.lat*Math.PI/180,lat2=b.lat*Math.PI/180,x=Math.sin(dLat/2)**2+Math.sin(dLng/2)**2*Math.cos(lat1)*Math.cos(lat2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}function nearestZone(lat,lng){let best=gpsZones[0],min=999;gpsZones.forEach(z=>{let d=distanceKm({lat,lng},{lat:z.lat,lng:z.lng});if(d<min){min=d;best=z}});return best.name}function dominantZone(points){let count={};points.forEach(p=>{let z=nearestZone(p.lat,p.lng);count[z]=(count[z]||0)+1});let sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]);return sorted[0]?.[0]||"--"}function totalDistance(points){let d=0;for(let i=1;i<points.length;i++)d+=distanceKm(points[i-1],points[i]);return d}
+function startShift(){if(currentShift){alert("Ya hay una jornada activa");return}currentShift={id:Date.now(),start:new Date().toISOString(),end:null,points:[],income:0,fuel:0,tolls:0,notes:""};routeLine.setLatLngs([]);document.getElementById("status").innerHTML='<span class="statusDot on"></span>Estado: jornada activa, registrando GPS...';showTab('mapa');if(!navigator.geolocation){alert("Tu navegador no permite GPS");return}watchId=navigator.geolocation.watchPosition(pos=>{let p={lat:pos.coords.latitude,lng:pos.coords.longitude,time:new Date().toISOString(),speed:pos.coords.speed||0,accuracy:pos.coords.accuracy||0};lastPosition=p;currentShift.points.push(p);routeLine.addLatLng([p.lat,p.lng]);if(marker){marker.setLatLng([p.lat,p.lng])}else{marker=L.marker([p.lat,p.lng]).addTo(map)}map.setView([p.lat,p.lng],15);updateStats()},err=>{alert("No se pudo leer GPS. Activa ubicación en Chrome y permisos del sitio.")},{enableHighAccuracy:true,maximumAge:3000,timeout:10000})}
+function stopShift(){if(!currentShift){alert("No hay jornada activa");return}if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=null;currentShift.end=new Date().toISOString();let h=loadHistory();h.push(currentShift);saveHistory(h);currentShift=null;document.getElementById("status").innerHTML='<span class="statusDot"></span>Estado: jornada finalizada. Agrega ganancias y gastos.';renderHistory();updateStats();showTab('tracker')}
+function centerGPS(){if(lastPosition){map.setView([lastPosition.lat,lastPosition.lng],16);showTab('mapa');return}navigator.geolocation.getCurrentPosition(pos=>{lastPosition={lat:pos.coords.latitude,lng:pos.coords.longitude,time:new Date().toISOString()};if(marker){marker.setLatLng([lastPosition.lat,lastPosition.lng])}else{marker=L.marker([lastPosition.lat,lastPosition.lng]).addTo(map)}map.setView([lastPosition.lat,lastPosition.lng],16);showTab('mapa')},()=>alert("No se pudo centrar. Revisa permisos de ubicación."))}
+function saveProfitData(){let h=loadHistory();if(h.length===0){alert("Primero finaliza una jornada");return}let last=h[h.length-1];last.income=Number(document.getElementById("income").value||0);last.fuel=Number(document.getElementById("fuel").value||0);last.tolls=Number(document.getElementById("tolls").value||0);last.notes=document.getElementById("notes").value||"";saveHistory(h);renderHistory();alert("Datos económicos guardados")}
+function updateStats(){let s=currentShift||loadHistory().slice(-1)[0];if(!s)return;let points=s.points||[];let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):Math.round((new Date()-new Date(s.start))/60000);document.getElementById("timeStat").innerHTML=mins+" min";document.getElementById("distStat").innerHTML=totalDistance(points).toFixed(1)+" km";document.getElementById("pointsStat").innerHTML=points.length;document.getElementById("zoneStat").innerHTML=dominantZone(points)}setInterval(updateStats,30000);
+function renderHistory(){let h=loadHistory();if(h.length===0){document.getElementById("history").innerHTML="<p class='small'>Aún no hay jornadas guardadas.</p>";return}let rows=h.slice().reverse().map(s=>{let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):0;let km=totalDistance(s.points||[]).toFixed(1);let net=Number(s.income||0)-Number(s.fuel||0)-Number(s.tolls||0);let zone=dominantZone(s.points||[]);let date=new Date(s.start).toLocaleString();return `<tr><td>${date}</td><td>${mins} min</td><td>${km} km</td><td>${zone}</td><td>$${net.toLocaleString()}</td></tr>`}).join("");document.getElementById("history").innerHTML=`<table><tr><th>Fecha</th><th>Tiempo</th><th>Km</th><th>Zona</th><th>Neto</th></tr>${rows}</table>`}
+function exportCSV(){let h=loadHistory();let csv="fecha_inicio,fecha_fin,minutos,km,zona_dominante,ganancia_bruta,gastos_combustible,otros_gastos,ganancia_neta,notas,puntos_gps\n";h.forEach(s=>{let mins=s.end?Math.round((new Date(s.end)-new Date(s.start))/60000):0;let km=totalDistance(s.points||[]).toFixed(2);let zone=dominantZone(s.points||[]);let net=Number(s.income||0)-Number(s.fuel||0)-Number(s.tolls||0);let pts=(s.points||[]).map(p=>`${p.lat}|${p.lng}|${p.time}`).join(";");let row=[s.start,s.end||"",mins,km,zone,s.income||0,s.fuel||0,s.tolls||0,net,(s.notes||"").replaceAll(","," "),pts].join(",");csv+=row+"\n"});let blob=new Blob([csv],{type:"text/csv;charset=utf-8"});let url=URL.createObjectURL(blob);let a=document.createElement("a");a.href=url;a.download="historial_radar_conductor_bogota_android.csv";a.click();URL.revokeObjectURL(url)}function clearHistory(){if(confirm("¿Seguro que deseas borrar todo el historial?")){localStorage.removeItem("radarAndroidHistory");renderHistory()}}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}renderHistory();
 </script>
 </body>
 </html>
