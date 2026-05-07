@@ -1,9 +1,12 @@
 {
-  "name": "Radar Uber Bogotá",
-  "short_name": "Radar Uber",
+  "name": "Radar Conductor Bogotá",
+  "short_name": "RadarConductor",
+  "description": "App Android para conductores: zonas, Waze, GPS, jornadas e historial de rentabilidad.",
   "start_url": "index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#facc15",
+  "orientation": "portrait",
+  "background_color": "#07111f",
+  "theme_color": "#0f172a",
   "icons": []
 }
