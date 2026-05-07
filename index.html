@@ -43,6 +43,10 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;borde
 .monitorBox{margin-top:10px;background:#0f172a;border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,.08)}
 .monitorOn{color:#22c55e;font-weight:900}
 .monitorOff{color:#ef4444;font-weight:900}
+.heatLegend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.heatItem{padding:7px 10px;border-radius:999px;background:#0f172a;font-size:12px}
+.dotGreen,.dotYellow,.dotRed{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.dotGreen{background:#22c55e}.dotYellow{background:#facc15}.dotRed{background:#ef4444}
 .authScreen{position:fixed;inset:0;background:linear-gradient(160deg,#020617,#0f172a);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
 .authBox{width:100%;max-width:430px;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.5)}
 .authTitle{font-size:28px;font-weight:950;margin-bottom:6px}
@@ -138,6 +142,12 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;borde
 <b>🗺 Mapa y recorrido</b>
 <div id="map"></div>
 <div class="small" style="margin-top:10px">Mapa base OpenStreetMap. Waze se abre como app externa si está instalada en Android.</div>
+<div class="card" style="margin-top:14px">
+<b>🔥 Heatmap inteligente</b>
+<p class="small">Colorea zonas según conveniencia por hora real, objetivo automático y distancia desde tu ubicación.</p>
+<button class="btnGreen" onclick="drawSmartHeatmap()">🔥 Actualizar heatmap</button>
+<div id="heatmapSummary" class="alert warn">Presiona actualizar heatmap para ver zonas calientes.</div>
+</div>
 </div>
 </section>
 
@@ -658,6 +668,88 @@ localStorage.removeItem("radarAutoMonitor");
 originalStopAutoMonitor();
 }
 
+
+
+let heatmapLayers=[];
+
+function clearSmartHeatmap(){
+heatmapLayers.forEach(layer=>map.removeLayer(layer));
+heatmapLayers=[];
+}
+
+function heatColor(score){
+if(score>=80)return "#22c55e";
+if(score>=60)return "#facc15";
+return "#ef4444";
+}
+
+function heatLabel(score){
+if(score>=80)return "Alta";
+if(score>=60)return "Media";
+return "Baja";
+}
+
+window.drawSmartHeatmap=function(){
+const box=document.getElementById("heatmapSummary");
+box.className="alert warn";
+box.innerHTML="📡 Calculando zonas calientes con hora real...";
+
+clearSmartHeatmap();
+
+const hour=new Date().getHours();
+const goal=currentAutoGoal(hour);
+
+function renderHeat(lat,lng,hasGPS=true){
+const ranked=liveZoneProfiles
+.map(z=>({
+...z,
+score:scoreLiveZone(z,hour,goal,lat,lng),
+distance:kmBetweenLive(lat,lng,z.lat,z.lng)
+}))
+.sort((a,b)=>b.score-a.score);
+
+ranked.forEach(z=>{
+const color=heatColor(z.score);
+const radius= z.score>=80 ? 950 : z.score>=60 ? 750 : 550;
+const layer=L.circle([z.lat,z.lng],{
+radius,
+color,
+fillColor:color,
+fillOpacity:0.23,
+weight:2
+}).addTo(map);
+
+layer.bindPopup(`<b>${z.name}</b><br>Score: ${z.score}%<br>Nivel: ${heatLabel(z.score)}<br>Distancia: ${z.distance.toFixed(1)} km`);
+heatmapLayers.push(layer);
+});
+
+const best=ranked[0];
+box.className= best.score>=80 ? "alert good" : "alert warn";
+box.innerHTML=`🔥 <b>Heatmap actualizado</b><br><br>
+<b>Objetivo automático:</b> ${ {airport:"aeropuerto",executive:"ejecutivo/oficinas",night:"nocturno",efficient:"eficiencia"}[goal] }<br>
+<b>Mejor zona:</b> ${best.name}<br>
+<b>Score:</b> ${best.score}%<br>
+<b>Distancia:</b> ${best.distance.toFixed(1)} km<br>
+<div class="heatLegend">
+<span class="heatItem"><span class="dotGreen"></span>Alta</span>
+<span class="heatItem"><span class="dotYellow"></span>Media</span>
+<span class="heatItem"><span class="dotRed"></span>Baja</span>
+</div>`;
+
+map.setView([best.lat,best.lng],12);
+}
+
+if(navigator.geolocation){
+navigator.geolocation.getCurrentPosition(pos=>{
+renderHeat(pos.coords.latitude,pos.coords.longitude,true);
+},()=>{
+renderHeat(4.67,-74.08,false);
+box.innerHTML+="<br><br>⚠️ No se pudo leer GPS, se usó centro de Bogotá.";
+},{enableHighAccuracy:true,maximumAge:5000,timeout:10000});
+}else{
+renderHeat(4.67,-74.08,false);
+}
+}
 
 if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}
 renderHistory();
