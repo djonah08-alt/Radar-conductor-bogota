@@ -40,6 +40,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;borde
 .installBox{background:linear-gradient(135deg,#172554,#0f172a);border:1px solid rgba(250,204,21,.35)}
 .statusDot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px}
 .statusDot.on{background:#22c55e}
+.monitorBox{margin-top:10px;background:#0f172a;border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,.08)}
+.monitorOn{color:#22c55e;font-weight:900}
+.monitorOff{color:#ef4444;font-weight:900}
 .authScreen{position:fixed;inset:0;background:linear-gradient(160deg,#020617,#0f172a);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
 .authBox{width:100%;max-width:430px;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.5)}
 .authTitle{font-size:28px;font-weight:950;margin-bottom:6px}
@@ -117,6 +120,14 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:7px;borde
 <b>🧠 Asistente en vivo</b>
 <p class="small">Analiza tu GPS, hora real y zona actual para decirte si estás bien ubicado o si conviene moverte.</p>
 <button class="btnGreen" onclick="liveAssistant()">📡 Analizar mi ubicación ahora</button>
+<div class="grid">
+<button class="btnBlue" onclick="startAutoMonitor()">▶️ Activar monitoreo</button>
+<button class="btnRed" onclick="stopAutoMonitor()">⏹ Detener monitoreo</button>
+</div>
+<div id="monitorStatus" class="monitorBox">
+<span class="monitorOff">Monitoreo apagado</span><br>
+<span class="small">Actívalo para que la app analice tu ubicación automáticamente cada 5 minutos.</span>
+</div>
 <div id="liveAdvice" class="alert warn">Presiona el botón para recibir recomendación automática.</div>
 <a id="liveWazeLink" href="https://www.waze.com/es/live-map/" target="_blank"><button class="btnBlue">🧭 Abrir recomendación en Waze</button></a>
 </div>
@@ -563,6 +574,90 @@ if(confirm("¿Seguro que deseas borrar todo el historial?")){
 localStorage.removeItem("radarAndroidHistory");renderHistory();
 }
 }
+
+
+let autoMonitorTimer=null;
+let lastMonitorPosition=null;
+let lastMovementTime=Date.now();
+
+function updateMonitorStatus(text,on=false){
+const el=document.getElementById("monitorStatus");
+if(!el)return;
+el.innerHTML=`<span class="${on?'monitorOn':'monitorOff'}">${text}</span><br><span class="small">La app revisa tu ubicación, tiempo detenido y zona recomendada automáticamente.</span>`;
+}
+
+function startAutoMonitor(){
+if(autoMonitorTimer){
+updateMonitorStatus("Monitoreo ya está activo",true);
+return;
+}
+updateMonitorStatus("Monitoreo activo: analizando cada 5 minutos",true);
+liveAssistant();
+autoMonitorTimer=setInterval(()=>{
+liveAssistant();
+checkIdleMovement();
+},300000);
+}
+
+function stopAutoMonitor(){
+if(autoMonitorTimer){
+clearInterval(autoMonitorTimer);
+autoMonitorTimer=null;
+}
+updateMonitorStatus("Monitoreo apagado",false);
+}
+
+function checkIdleMovement(){
+if(!navigator.geolocation)return;
+navigator.geolocation.getCurrentPosition(pos=>{
+const now=Date.now();
+const current={lat:pos.coords.latitude,lng:pos.coords.longitude};
+
+if(lastMonitorPosition){
+const moved=kmBetweenLive(
+lastMonitorPosition.lat,
+lastMonitorPosition.lng,
+current.lat,
+current.lng
+);
+
+if(moved>0.25){
+lastMovementTime=now;
+}else{
+const idleMin=Math.round((now-lastMovementTime)/60000);
+if(idleMin>=25){
+const box=document.getElementById("liveAdvice");
+if(box){
+box.className="alert warn";
+box.innerHTML+=`<br><br>⏱️ <b>Alerta de espera:</b> llevas aproximadamente ${idleMin} minutos casi sin moverte. Si no han caído servicios, considera reposicionarte.`;
+}
+}
+}
+}else{
+lastMovementTime=now;
+}
+
+lastMonitorPosition=current;
+},()=>{}, {enableHighAccuracy:true,maximumAge:5000,timeout:10000});
+}
+
+// Restaura monitoreo si el usuario lo deja activo
+if(localStorage.getItem("radarAutoMonitor")==="on"){
+setTimeout(()=>startAutoMonitor(),1500);
+}
+
+const originalStartAutoMonitor=startAutoMonitor;
+startAutoMonitor=function(){
+localStorage.setItem("radarAutoMonitor","on");
+originalStartAutoMonitor();
+}
+
+const originalStopAutoMonitor=stopAutoMonitor;
+stopAutoMonitor=function(){
+localStorage.removeItem("radarAutoMonitor");
+originalStopAutoMonitor();
+}
+
 
 if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(()=>{})}
 renderHistory();
