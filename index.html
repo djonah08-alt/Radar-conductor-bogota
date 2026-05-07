@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radar Uber Bogotá</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root{
+      --bg:#0b1220;--card:#121b2e;--muted:#94a3b8;--text:#f8fafc;--accent:#facc15;--ok:#22c55e;--warn:#fb923c;--bad:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(160deg,#07101f,#111827);color:var(--text)}
+    header{padding:22px 18px 10px}
+    h1{margin:0;font-size:28px;letter-spacing:-.5px}
+    p{color:var(--muted);line-height:1.45}
+    .wrap{padding:0 16px 24px;max-width:760px;margin:auto}
+    .card{background:rgba(18,27,46,.92);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{display:block;color:#cbd5e1;font-size:13px;margin-bottom:6px}
+    select,button,input{width:100%;border:1px solid rgba(255,255,255,.12);background:#0f172a;color:var(--text);padding:12px;border-radius:12px;font-size:15px}
+    button{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111827;font-weight:800;border:0;margin-top:10px}
+    .score{font-size:48px;font-weight:900;margin:5px 0;color:var(--accent)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0f172a;color:#e2e8f0;margin:4px 4px 4px 0;border:1px solid rgba(255,255,255,.08)}
+    .zone{font-size:22px;font-weight:800;margin:8px 0}
+    .small{font-size:13px;color:var(--muted)}
+    .list{padding-left:18px;color:#dbeafe}
+    .footer{font-size:12px;color:#64748b;text-align:center;margin-top:16px}
+    .good{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+  </style>
+</head>
+<body>
+<header class="wrap">
+  <h1>🚘 Radar Uber Bogotá</h1>
+  <p>Asistente estratégico para decidir dónde conectarte según hora, día y objetivo. No modifica Uber ni usa datos privados.</p>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="row">
+      <div>
+        <label>Día</label>
+        <select id="day">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div>
+        <label>Hora</label>
+        <select id="hour"></select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>Objetivo</label>
+        <select id="goal">
+          <option value="aeropuerto">Aeropuerto</option>
+          <option value="ejecutivo">Ejecutivo / oficinas</option>
+          <option value="nocturno">Noche / rumba</option>
+          <option value="eficiencia">Eficiencia / menos desgaste</option>
+        </select>
+      </div>
+      <div>
+        <label>Estado del tráfico</label>
+        <select id="traffic">
+          <option value="medio">Medio</option>
+          <option value="bajo">Bajo</option>
+          <option value="alto">Alto</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="recommend()">Recomendar zona</button>
+  </section>
+
+  <section class="card" id="result">
+    <div class="small">Resultado</div>
+    <div class="score">--</div>
+    <div class="zone">Selecciona tus datos</div>
+    <p>La app te dirá dónde ubicarte, qué evitar y cómo encadenar servicios.</p>
+  </section>
+
+  <section class="card">
+    <b>Regla rápida</b>
+    <p>Lo rentable no es perseguir la dinámica tarde. Es estar antes del pico en la zona correcta.</p>
+    <span class="pill">Aeropuerto AM</span>
+    <span class="pill">Oficinas PM</span>
+    <span class="pill">Zona T noche</span>
+    <span class="pill">Eventos</span>
+  </section>
+</main>
+
+<script>
+const hourSelect = document.getElementById("hour");
+for(let h=0; h<24; h++){
+  let label = `${String(h).padStart(2,'0')}:00`;
+  let opt = document.createElement("option");
+  opt.value = h; opt.textContent = label;
+  hourSelect.appendChild(opt);
+}
+const now = new Date();
+const days = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+document.getElementById("day").value = days[now.getDay()];
+document.getElementById("hour").value = now.getHours();
+
+const data = {
+  madrugada: {
+    zones:["Chicó / Parque 93", "Rosales / Chapinero Alto", "Santa Bárbara / Usaquén", "Modelia / Salitre"],
+    why:"Alta probabilidad de servicios hacia El Dorado, hoteles, viajeros y ejecutivos.",
+    avoid:"No te vayas vacío directo al aeropuerto salvo que haya muy buena dinámica."
+  },
+  manana: {
+    zones:["Connecta 26", "Salitre", "Calle 72", "World Trade Center / Teleport"],
+    why:"Traslados corporativos, reuniones, hoteles y servicios medianos.",
+    avoid:"Evita quedarte quieto en zonas sin oficinas."
+  },
+  almuerzo: {
+    zones:["Zona G", "Parque de la 93", "Andino / Atlantis", "Usaquén / Unicentro"],
+    why:"Movimiento de restaurantes, centros comerciales y oficinas.",
+    avoid:"No aceptes viajes demasiado cortos si te sacan de zona premium."
+  },
+  tarde: {
+    zones:["Calle 100", "Calle 72", "Chicó", "Connecta / Salitre", "Usaquén"],
+    why:"Salida de oficinas, viajes largos, aeropuerto tarde y posible dinámica.",
+    avoid:"Cuidado con trancones que te manden lejos y retorno vacío."
+  },
+  noche: {
+    zones:["Zona T", "Parque 93", "Zona G", "Chapinero", "Usaquén", "Movistar Arena / Campín si hay evento"],
+    why:"Rumba, restaurantes, conciertos, trayectos largos y mayor probabilidad de dinámica.",
+    avoid:"No persigas una dinámica que ya está terminando."
+  },
+  domingo: {
+    zones:["Aeropuerto", "Terminal Salitre", "Unicentro", "Zona norte residencial", "Modelia / Hayuelos"],
+    why:"Regreso de viajeros, familias, terminales y aeropuerto.",
+    avoid:"Evita zonas muy alejadas sin retorno rentable."
+  }
+};
+
+function block(hour, day){
+  if(day==="Domingo") return "domingo";
+  if(hour>=4 && hour<9) return "madrugada";
+  if(hour>=9 && hour<12) return "manana";
+  if(hour>=12 && hour<15) return "almuerzo";
+  if(hour>=15 && hour<21) return "tarde";
+  return "noche";
+}
+
+function scoreFor(hour, day, goal, traffic){
+  let score=60;
+  const weekend = ["Viernes","Sábado"].includes(day);
+  if(goal==="aeropuerto" && hour>=4 && hour<8) score+=28;
+  if(goal==="aeropuerto" && (hour>=15 && hour<19)) score+=15;
+  if(goal==="ejecutivo" && ((hour>=7 && hour<11)||(hour>=16 && hour<19))) score+=20;
+  if(goal==="nocturno" && weekend && (hour>=20 || hour<3)) score+=30;
+  if(goal==="eficiencia" && traffic==="bajo") score+=12;
+  if(traffic==="alto") score-=12;
+  if(day==="Domingo" && goal==="aeropuerto") score+=16;
+  return Math.max(25, Math.min(98, score));
+}
+
+function recommend(){
+  const day = document.getElementById("day").value;
+  const hour = parseInt(document.getElementById("hour").value);
+  const goal = document.getElementById("goal").value;
+  const traffic = document.getElementById("traffic").value;
+  const key = block(hour, day);
+  const rec = data[key];
+  const score = scoreFor(hour, day, goal, traffic);
+  const bestZone = rec.zones[0];
+
+  let status = score>=80 ? "<span class='good'>Muy buena oportunidad</span>" : score>=60 ? "<span class='warn'>Oportunidad media</span>" : "<span class='bad'>Mejor esperar o moverte</span>";
+
+  document.getElementById("result").innerHTML = `
+    <div class="small">${day} · ${String(hour).padStart(2,'0')}:00 · ${status}</div>
+    <div class="score">${score}%</div>
+    <div class="zone">📍 Zona recomendada: ${bestZone}</div>
+    <p><b>Alternativas:</b> ${rec.zones.slice(1).join(" · ")}</p>
+    <p><b>Por qué:</b> ${rec.why}</p>
+    <p><b>Evita:</b> ${rec.avoid}</p>
+    <ul class="list">
+      <li>Ubícate 20–30 minutos antes del pico.</li>
+      <li>Prioriza servicios que te acerquen a corredores calientes.</li>
+      <li>Si dejas en aeropuerto y no cae rápido, sal hacia Modelia, Salitre o Connecta.</li>
+    </ul>
+  `;
+}
+
+recommend();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+<div class="footer wrap">Versión MVP · Radar Uber Bogotá · Uso estratégico, no afiliado a Uber</div>
+</body>
+</html>
